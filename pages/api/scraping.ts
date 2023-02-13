@@ -1,6 +1,8 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import puppeteer from "puppeteer";
+import puppeteerLocal from "puppeteer";
+import puppeteerCore from "puppeteer-core";
+import chrome from "chrome-aws-lambda";
 import axios from "axios";
 import sha256 from "crypto-js/sha256";
 import randomstring from "randomstring";
@@ -21,7 +23,20 @@ export default async function handler(
 
   const decoded = await auth.verifyIdToken(req.headers.authorization);
 
-  const browser = await puppeteer.launch();
+  let browser;
+  if (process.env.VERCEL) {
+    console.log("vercel");
+    browser = await puppeteerCore.launch({
+      args: chrome.args,
+      executablePath: await chrome.executablePath,
+      headless: chrome.headless,
+    });
+  } else {
+    console.log("local");
+    browser = await puppeteerLocal.launch();
+  }
+
+  console.log(browser, "browser");
   const page = await browser.newPage();
   await page.goto(url);
   const item = await page.$("span.a-offscreen");
@@ -31,7 +46,9 @@ export default async function handler(
   await browser.close();
 
   // merchants has to implement new
-  const amount = Number(priceString?.replace("￥", "")?.replace(",", ""));
+  const amount = Number(
+    (priceString as string)?.replace("￥", "")?.replace(",", "")
+  );
   const amountType = "JPY";
   const orderCode = randomstring.generate({
     length: 16,
