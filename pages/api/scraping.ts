@@ -46,6 +46,7 @@ export default async function handler(
     ".wl-grid-item-bottom-section"
   );
   console.log(gridItemContentSection.length, "1");
+  console.log(gridItemContentSection[0].innerHTML);
 
   const mystery = dom.window.document.querySelectorAll(".a-offscreen");
   console.log(mystery.length, "mystery.length");
