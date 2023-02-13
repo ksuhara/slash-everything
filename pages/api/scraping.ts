@@ -31,7 +31,12 @@ export default async function handler(
   console.log(dom, "dom");
   console.log(dom.window.document, "dom.window.document");
 
+  const name = dom.window.document.querySelector("#profile-list-name");
+  console.log(name, "name");
+  console.log(name?.innerHTML, "name");
+
   const offscreen = dom.window.document.querySelector(".a-offscreen");
+  console.log(offscreen);
   console.log(offscreen?.innerHTML);
   const amount = Number(
     offscreen?.innerHTML?.replace("￥", "")?.replace(",", "")
@@ -61,43 +66,43 @@ export default async function handler(
     amount: amount,
     amount_type: amountType,
   };
-  const paymentRequestUrl = "https://testnet.slash.fi/api/v1/payment/receive";
-  const result = await axios
-    .post(paymentRequestUrl, requestObj)
-    .catch((error) => {
-      return error.response;
-    });
+  // const paymentRequestUrl = "https://testnet.slash.fi/api/v1/payment/receive";
+  // const result = await axios
+  //   .post(paymentRequestUrl, requestObj)
+  //   .catch((error) => {
+  //     return error.response;
+  //   });
 
-  if (result.status !== 200) {
-    console.log(2);
+  // if (result.status !== 200) {
+  //   console.log(2);
 
-    return {
-      statusCode: result.status,
-      body: JSON.stringify(result.data),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-  }
-  const paymentUrl = result.data.url;
-  const paymentToken = result.data.token;
+  //   return {
+  //     statusCode: result.status,
+  //     body: JSON.stringify(result.data),
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //   };
+  // }
+  // const paymentUrl = result.data.url;
+  // const paymentToken = result.data.token;
 
-  const docRef = db.collection(`orders`).doc(orderCode);
-  await docRef.set({
-    requestUrl: url,
-    orderCode,
-    paymentUrl,
-    amount,
-    amountType,
-    paymentToken,
-    status: "initiated",
-    user: decoded.uid,
-  });
+  // const docRef = db.collection(`orders`).doc(orderCode);
+  // await docRef.set({
+  //   requestUrl: url,
+  //   orderCode,
+  //   paymentUrl,
+  //   amount,
+  //   amountType,
+  //   paymentToken,
+  //   status: "initiated",
+  //   user: decoded.uid,
+  // });
 
-  console.log(paymentUrl);
-  console.log(paymentToken);
-  res.status(200).json({
-    paymentUrl,
-    paymentToken,
-  });
+  // console.log(paymentUrl);
+  // console.log(paymentToken);
+  // res.status(200).json({
+  //   paymentUrl,
+  //   paymentToken,
+  // });
 }
