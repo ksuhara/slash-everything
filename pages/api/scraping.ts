@@ -47,8 +47,12 @@ export default async function handler(
   );
   console.log(gridItemContentSection.length, "1");
 
+  const mystery = dom.window.document.querySelectorAll(".a-offscreen");
+  console.log(mystery.length, "mystery.length");
+
   let amount = 0;
-  offscreen.forEach((element) => {
+  mystery.forEach((element) => {
+    console.log(element);
     amount += Number(element.textContent?.replace("￥", "")?.replace(",", ""));
   });
 
