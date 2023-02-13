@@ -29,6 +29,8 @@ export default async function handler(
   console.log(body, "body");
   const dom = new JSDOM(body); // パース
   console.log(dom, "dom");
+  console.log(dom.window.document, "dom.window.document");
+
   const offscreen = dom.window.document.querySelector(".a-offscreen");
   console.log(offscreen?.innerHTML);
   const amount = Number(
