@@ -17,6 +17,7 @@ import { Header } from "../components/Header";
 import { signInWithCustomToken, signOut } from "firebase/auth";
 import { getDoc, doc, serverTimestamp, setDoc } from "firebase/firestore";
 import useFirebaseUser from "@/configs/useFirebaseUser";
+import { useState } from "react";
 
 export default function Home() {
   const router = useRouter();
@@ -24,6 +25,8 @@ export default function Home() {
   const sdk = useSDK();
   const { auth, db } = initializeFirebaseClient();
   const { user, isLoading: loadingAuth } = useFirebaseUser();
+
+  const [amazonUrl, setAmazonUrl] = useState("");
 
   const signIn = async () => {
     if (!address) return;
@@ -54,10 +57,11 @@ export default function Home() {
   const connectWithMetamask = useMetamask();
 
   const test = async () => {
+    if (!amazonUrl) return;
     const signedPayloadReq = await fetch(`/api/scraping`, {
       method: "POST",
       body: JSON.stringify({
-        url: "https://www.amazon.co.jp/hz/wishlist/ls/2UXCAUWDYHE17?ref_=wl_share&viewType=grid",
+        url: amazonUrl,
       }),
     });
     if (signedPayloadReq.status === 200) {
@@ -122,6 +126,7 @@ export default function Home() {
                       type="email"
                       required
                       minWidth="sm"
+                      onChange={(e) => setAmazonUrl(e.target.value)}
                     />
                   </FormControl>
                   {address ? (
@@ -156,7 +161,7 @@ export default function Home() {
               <Heading size="lg">Step 3</Heading>
               <Text>運営が欲しいものをプレゼントするのでお待ちください。</Text>
               <Text>
-                プレゼントするまで、欲しいものリストは削除・変更しないでください。
+                プレゼントされるまで、欲しいものリストは削除・変更しないでください。
               </Text>
             </Stack>
           </Stack>
