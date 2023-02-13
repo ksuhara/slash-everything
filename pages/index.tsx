@@ -56,18 +56,24 @@ export default function Home() {
 
   const connectWithMetamask = useMetamask();
 
-  const test = async () => {
+  const payment = async () => {
     if (!amazonUrl) return;
+    const idToken = await user?.getIdToken();
+
     const signedPayloadReq = await fetch(`/api/scraping`, {
       method: "POST",
       body: JSON.stringify({
         url: amazonUrl,
       }),
+      headers: {
+        Authorization: idToken || "unauthenticated",
+      },
     });
     if (signedPayloadReq.status === 200) {
       const json = await signedPayloadReq.json();
       router.push(json.paymentUrl);
     } else {
+      console.log(signedPayloadReq);
       alert(
         "You have already started this payment. Please continue the payment or start from order again."
       );
@@ -135,7 +141,7 @@ export default function Home() {
                         <Image
                           src="payment-button_light.png"
                           width="40"
-                          onClick={test}
+                          onClick={payment}
                           alt="button"
                           boxShadow="2xl"
                         ></Image>

@@ -10,6 +10,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  console.log(req.headers.authorization);
   if (!(req.headers && req.headers.authorization)) {
     return res
       .status(400)
@@ -20,7 +21,6 @@ export default async function handler(
 
   const decoded = await auth.verifyIdToken(req.headers.authorization);
 
-  console.log(url);
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.goto(url);
@@ -55,7 +55,6 @@ export default async function handler(
     amount: amount,
     amount_type: amountType,
   };
-  console.log(1);
   const paymentRequestUrl = "https://testnet.slash.fi/api/v1/payment/receive";
   const result = await axios
     .post(paymentRequestUrl, requestObj)
