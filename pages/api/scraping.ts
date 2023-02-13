@@ -34,28 +34,16 @@ export default async function handler(
   console.log(name, "name");
   console.log(name?.innerHTML, "name");
 
-  const offscreen = dom.window.document.querySelectorAll(".a-list-item");
+  const offscreen = dom.window.document.querySelectorAll(".a-price-whole");
   console.log(offscreen.length, "1");
 
-  const gridItemContent = dom.window.document.querySelectorAll(
-    ".wl-grid-item-content"
-  );
-  console.log(gridItemContent.length, "1");
-
-  const gridItemContentSection = dom.window.document.querySelectorAll(
-    ".wl-grid-item-bottom-section"
-  );
-  console.log(gridItemContentSection.length, "1");
-  console.log(gridItemContentSection[0].innerHTML);
-
-  const mystery = dom.window.document.querySelectorAll(".a-offscreen");
-  console.log(mystery.length, "mystery.length");
-
   let amount = 0;
-  mystery.forEach((element) => {
+  offscreen.forEach((element) => {
     console.log(element);
-    amount += Number(element.textContent?.replace("￥", "")?.replace(",", ""));
+    amount += Number(element.innerHTML?.replace(",", ""));
   });
+
+  console.log(amount);
 
   const amountType = "JPY";
   const orderCode = randomstring.generate({
