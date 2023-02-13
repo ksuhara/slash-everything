@@ -28,20 +28,19 @@ export default async function handler(
   const body = await html.text(); // HTMLをテキストで取得
   console.log(body, "body");
   const dom = new JSDOM(body); // パース
-  console.log(dom, "dom");
   console.log(dom.window.document, "dom.window.document");
 
   const name = dom.window.document.querySelector("#profile-list-name");
   console.log(name, "name");
   console.log(name?.innerHTML, "name");
 
-  const offscreen = dom.window.document.querySelector(".a-offscreen");
+  const offscreen = dom.window.document.querySelectorAll(".a-offscreen");
   console.log(offscreen);
-  console.log(offscreen?.innerHTML);
-  const amount = Number(
-    offscreen?.innerHTML?.replace("￥", "")?.replace(",", "")
-  );
-  console.log(amount);
+  let amount = 0;
+  offscreen.forEach((element) => {
+    console.log(element.textContent?.replace("￥", "")?.replace(",", ""));
+    amount += Number(element.textContent?.replace("￥", "")?.replace(",", ""));
+  });
 
   const amountType = "JPY";
   const orderCode = randomstring.generate({
