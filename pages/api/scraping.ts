@@ -34,11 +34,21 @@ export default async function handler(
   console.log(name, "name");
   console.log(name?.innerHTML, "name");
 
-  const offscreen = dom.window.document.querySelectorAll(".a-offscreen");
-  console.log(offscreen);
+  const offscreen = dom.window.document.querySelectorAll(".a-list-item");
+  console.log(offscreen.length, "1");
+
+  const gridItemContent = dom.window.document.querySelectorAll(
+    ".wl-grid-item-content"
+  );
+  console.log(gridItemContent.length, "1");
+
+  const gridItemContentSection = dom.window.document.querySelectorAll(
+    ".wl-grid-item-bottom-section"
+  );
+  console.log(gridItemContentSection.length, "1");
+
   let amount = 0;
   offscreen.forEach((element) => {
-    console.log(element.textContent?.replace("￥", "")?.replace(",", ""));
     amount += Number(element.textContent?.replace("￥", "")?.replace(",", ""));
   });
 
