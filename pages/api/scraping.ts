@@ -4,7 +4,7 @@ import axios from "axios";
 import sha256 from "crypto-js/sha256";
 import randomstring from "randomstring";
 import initializeFirebaseServer from "../../configs/initFirebaseAdmin";
-import fetch from "node-fetch";
+import nodefetch from "node-fetch";
 import jsdom from "jsdom";
 const { JSDOM } = jsdom;
 
@@ -23,9 +23,12 @@ export default async function handler(
 
   const decoded = await auth.verifyIdToken(req.headers.authorization);
 
-  const html = await fetch(url);
+  const html = await nodefetch(url);
+  console.log(html, "html");
   const body = await html.text(); // HTMLをテキストで取得
+  console.log(body, "body");
   const dom = new JSDOM(body); // パース
+  console.log(dom, "dom");
   const offscreen = dom.window.document.querySelector(".a-offscreen");
   console.log(offscreen?.innerHTML);
   const amount = Number(
