@@ -6,17 +6,19 @@ import sha256 from "crypto-js/sha256";
 import randomstring from "randomstring";
 import initializeFirebaseServer from "../../configs/initFirebaseAdmin";
 
-type Data = {
-  paymentUrl: any;
-  paymentToken: any;
-};
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse
 ) {
+  if (!(req.headers && req.headers.authorization)) {
+    return res
+      .status(400)
+      .json({ error: "Missing Authorization header value" });
+  }
   const { url } = JSON.parse(req.body);
-  const { db } = initializeFirebaseServer();
+  const { db, auth } = initializeFirebaseServer();
+
+  const decoded = await auth.verifyIdToken(req.headers.authorization);
 
   console.log(url);
   const browser = await puppeteer.launch();
@@ -84,6 +86,7 @@ export default async function handler(
     amountType,
     paymentToken,
     status: "initiated",
+    user: decoded.uid,
   });
 
   console.log(paymentUrl);
