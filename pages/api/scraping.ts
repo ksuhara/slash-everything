@@ -1,12 +1,12 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-// import puppeteerLocal from "puppeteer";
-import puppeteerCore from "puppeteer-core";
-import chrome from "chrome-aws-lambda";
 import axios from "axios";
 import sha256 from "crypto-js/sha256";
 import randomstring from "randomstring";
 import initializeFirebaseServer from "../../configs/initFirebaseAdmin";
+import fetch from "node-fetch";
+import jsdom from "jsdom";
+const { JSDOM } = jsdom;
 
 export default async function handler(
   req: NextApiRequest,
@@ -23,29 +23,16 @@ export default async function handler(
 
   const decoded = await auth.verifyIdToken(req.headers.authorization);
 
-  let browser;
-
-  browser = await puppeteerCore.launch({
-    args: chrome.args,
-    executablePath: await chrome.executablePath,
-    headless: chrome.headless,
-  });
-
-  // browser = await puppeteerLocal.launch();
-
-  console.log(browser, "browser");
-  const page = await browser.newPage();
-  await page.goto(url);
-  const item = await page.$("span.a-offscreen");
-
-  console.log(await (await item?.getProperty("innerHTML"))?.jsonValue());
-  const priceString = await (await item?.getProperty("innerHTML"))?.jsonValue();
-  await browser.close();
-
-  // merchants has to implement new
+  const html = await fetch(url);
+  const body = await html.text(); // HTMLをテキストで取得
+  const dom = new JSDOM(body); // パース
+  const offscreen = dom.window.document.querySelector(".a-offscreen");
+  console.log(offscreen?.innerHTML);
   const amount = Number(
-    (priceString as string)?.replace("￥", "")?.replace(",", "")
+    offscreen?.innerHTML?.replace("￥", "")?.replace(",", "")
   );
+  console.log(amount);
+
   const amountType = "JPY";
   const orderCode = randomstring.generate({
     length: 16,

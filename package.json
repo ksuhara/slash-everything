@@ -27,7 +27,9 @@
     "firebase": "^9.17.1",
     "firebase-admin": "^11.5.0",
     "framer-motion": "^9.0.2",
+    "jsdom": "^21.1.0",
     "next": "13.1.6",
+    "node-fetch": "^3.3.0",
     "puppeteer-core": "8.0.0",
     "randomstring": "^1.2.3",
     "react": "18.2.0",
@@ -37,6 +39,7 @@
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
+    "@types/jsdom": "^21.1.0",
     "@types/randomstring": "^1.1.8"
   }
 }
