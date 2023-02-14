@@ -6,11 +6,9 @@ export default async function slashWebhook(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const {
-    order_code: orderCode,
-    transaction_hash: transactionHash,
-    result,
-  } = JSON.parse(req.body);
+  console.log(req, "req");
+  console.log(req.body, "req.body");
+  const { orderCode, transactionHash, result } = JSON.parse(req.body);
   console.log(result, "result");
   const { db } = initializeFirebaseServer();
   const docRef = db.collection(`orders`).doc(orderCode);

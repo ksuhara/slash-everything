@@ -10,13 +10,18 @@ import {
   Stack,
   Text,
   Image,
+  Card,
+  CardHeader,
+  CardBody,
+  Badge,
 } from "@chakra-ui/react";
 import { useAddress, useMetamask, useSDK } from "@thirdweb-dev/react";
 import { useRouter } from "next/router";
 import { Header } from "../components/Header";
 import { signInWithCustomToken, signOut } from "firebase/auth";
 import { getDoc, doc, serverTimestamp, setDoc } from "firebase/firestore";
-import useFirebaseUser from "@/configs/useFirebaseUser";
+import useFirebaseUser from "@/hooks/useFirebaseUser";
+import useFirebaseUserData from "@/hooks/useFirebaseUserData";
 import { useState } from "react";
 
 export default function Home() {
@@ -25,6 +30,7 @@ export default function Home() {
   const sdk = useSDK();
   const { auth, db } = initializeFirebaseClient();
   const { user, isLoading: loadingAuth } = useFirebaseUser();
+  const { orders } = useFirebaseUserData();
 
   const [amazonUrl, setAmazonUrl] = useState("");
   const [amount, setAmount] = useState("");
@@ -179,6 +185,26 @@ export default function Home() {
               <Text>
                 プレゼントされるまで、欲しいものリストは削除・変更しないでください。
               </Text>
+              <Stack spacing="2">
+                {orders?.map((order) => {
+                  return (
+                    <Card key={order.orderCode} size="sm">
+                      <CardHeader pb="0">id: {order.orderCode}</CardHeader>
+                      <CardBody>
+                        <Text>{order.requestUrl}</Text>
+                        <Stack direction="row" justifyContent="space-between">
+                          <Text>{order.amount}円</Text>
+                          <Badge
+                            colorScheme={order.status == "" ? "green" : "red"}
+                          >
+                            {order.status}
+                          </Badge>
+                        </Stack>
+                      </CardBody>
+                    </Card>
+                  );
+                })}
+              </Stack>
             </Stack>
           </Stack>
         </Container>

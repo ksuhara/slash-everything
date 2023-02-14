@@ -1,4 +1,5 @@
-import { Text } from "@chakra-ui/react";
+import { Header } from "@/components/Header";
+import { Container, Heading, Stack, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
 export default function Success() {
@@ -7,8 +8,13 @@ export default function Success() {
 
   return (
     <>
-      <Text>✅成功しました！</Text>
-      <Text>payment_token:{payment_token}</Text>
+      <Header />
+      <Container py={{ base: "16", md: "24" }}>
+        <Stack textAlign="center">
+          <Heading>✅成功しました！</Heading>
+          <Text>payment_token:{payment_token}</Text>
+        </Stack>
+      </Container>
     </>
   );
 }

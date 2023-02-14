@@ -1,6 +1,6 @@
 import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
-import initializeFirebaseClient from "./initFirebase";
+import initializeFirebaseClient from "../configs/initFirebase";
 
 // Helpful hook for you to get the currently authenticated user in Firebase.
 export default function useFirebaseUser() {

@@ -8,12 +8,15 @@ import {
   Text,
   IconButton,
   useBreakpointValue,
+  Link,
 } from "@chakra-ui/react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { FiHelpCircle, FiMenu, FiSearch, FiSettings } from "react-icons/fi";
 
 export const Header = () => {
   const isDesktop = useBreakpointValue({ base: false, lg: true });
+  const router = useRouter();
   return (
     <>
       <Head>
@@ -25,12 +28,13 @@ export const Header = () => {
       <Box as="nav" bg="bg-surface" boxShadow="sm" width="full">
         <Box py={{ base: "3", lg: "4" }} px="2" width="full">
           <Flex justify="space-between">
-            <HStack spacing="4">
+            <HStack spacing="4" onClick={() => router.push("/")}>
               <Text
                 fontSize="xl"
                 fontWeight="extrabold"
                 ml="2"
                 color="blue.400"
+                fontStyle="italic"
               >
                 Slash Everything
               </Text>
