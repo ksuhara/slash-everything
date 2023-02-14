@@ -27,6 +27,7 @@ export default function Home() {
   const { user, isLoading: loadingAuth } = useFirebaseUser();
 
   const [amazonUrl, setAmazonUrl] = useState("");
+  const [amount, setAmount] = useState("");
 
   const signIn = async () => {
     if (!address) return;
@@ -57,13 +58,14 @@ export default function Home() {
   const connectWithMetamask = useMetamask();
 
   const payment = async () => {
-    if (!amazonUrl) return;
+    if (!amazonUrl || !amount) return;
     const idToken = await user?.getIdToken();
 
     const signedPayloadReq = await fetch(`/api/scraping`, {
       method: "POST",
       body: JSON.stringify({
-        url: amazonUrl,
+        amazonUrl,
+        amount,
       }),
       headers: {
         Authorization: idToken || "unauthenticated",
@@ -120,22 +122,28 @@ export default function Home() {
               <Text>
                 リンクが切り替わるので、クリプト決済を完了してください。
               </Text>
-              <chakra.form width={{ base: "full", md: "md" }}>
+              <chakra.form width={{ base: "full" }}>
                 <Stack
-                  direction={{ base: "column", md: "row" }}
+                  direction={{ base: "column" }}
                   spacing="4"
                   shouldWrapChildren
+                  textAlign="center"
                 >
-                  <FormControl>
-                    <Input
-                      size="lg"
-                      placeholder="欲しいものリストのURLを入力してください"
-                      type="email"
-                      required
-                      minWidth="sm"
-                      onChange={(e) => setAmazonUrl(e.target.value)}
-                    />
-                  </FormControl>
+                  <Input
+                    size="lg"
+                    placeholder="欲しいものリストのURLを入力してください"
+                    type="url"
+                    required
+                    mx="auto"
+                    onChange={(e) => setAmazonUrl(e.target.value)}
+                  />
+                  <Input
+                    size="lg"
+                    placeholder="¥ 金額"
+                    type="number"
+                    required
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
                   {address ? (
                     <>
                       {user ? (
@@ -145,6 +153,7 @@ export default function Home() {
                           onClick={payment}
                           alt="button"
                           boxShadow="2xl"
+                          mx="auto"
                         ></Image>
                       ) : (
                         <Button onClick={signIn} size="lg" minWidth="48">

@@ -4,9 +4,6 @@ import axios from "axios";
 import sha256 from "crypto-js/sha256";
 import randomstring from "randomstring";
 import initializeFirebaseServer from "../../configs/initFirebaseAdmin";
-import nodefetch from "node-fetch";
-import jsdom from "jsdom";
-const { JSDOM } = jsdom;
 
 export default async function handler(
   req: NextApiRequest,
@@ -18,30 +15,10 @@ export default async function handler(
       .status(400)
       .json({ error: "Missing Authorization header value" });
   }
-  const { url } = JSON.parse(req.body);
+  const { amazonUrl, amount } = JSON.parse(req.body);
   const { db, auth } = initializeFirebaseServer();
 
   const decoded = await auth.verifyIdToken(req.headers.authorization);
-
-  const html = await nodefetch(url);
-  console.log(html, "html");
-  const body = await html.text(); // HTMLをテキストで取得
-  console.log(body, "body");
-  const dom = new JSDOM(body); // パース
-  console.log(dom.window.document, "dom.window.document");
-
-  const name = dom.window.document.querySelector("#profile-list-name");
-  console.log(name, "name");
-  console.log(name?.innerHTML, "name");
-
-  const offscreen = dom.window.document.querySelectorAll(".a-price-whole");
-  console.log(offscreen.length, "1");
-
-  let amount = 0;
-  offscreen.forEach((element) => {
-    console.log(element);
-    amount += Number(element.innerHTML?.replace(",", ""));
-  });
 
   console.log(amount);
 
@@ -68,43 +45,41 @@ export default async function handler(
     amount: amount,
     amount_type: amountType,
   };
-  // const paymentRequestUrl = "https://testnet.slash.fi/api/v1/payment/receive";
-  // const result = await axios
-  //   .post(paymentRequestUrl, requestObj)
-  //   .catch((error) => {
-  //     return error.response;
-  //   });
+  const paymentRequestUrl = "https://testnet.slash.fi/api/v1/payment/receive";
+  const result = await axios
+    .post(paymentRequestUrl, requestObj)
+    .catch((error) => {
+      return error.response;
+    });
 
-  // if (result.status !== 200) {
-  //   console.log(2);
+  if (result.status !== 200) {
+    return {
+      statusCode: result.status,
+      body: JSON.stringify(result.data),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+  }
+  const paymentUrl = result.data.url;
+  const paymentToken = result.data.token;
 
-  //   return {
-  //     statusCode: result.status,
-  //     body: JSON.stringify(result.data),
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //   };
-  // }
-  // const paymentUrl = result.data.url;
-  // const paymentToken = result.data.token;
+  const docRef = db.collection(`orders`).doc(orderCode);
+  await docRef.set({
+    requestUrl: amazonUrl,
+    orderCode,
+    paymentUrl,
+    amount,
+    amountType,
+    paymentToken,
+    status: "initiated",
+    user: decoded.uid,
+  });
 
-  // const docRef = db.collection(`orders`).doc(orderCode);
-  // await docRef.set({
-  //   requestUrl: url,
-  //   orderCode,
-  //   paymentUrl,
-  //   amount,
-  //   amountType,
-  //   paymentToken,
-  //   status: "initiated",
-  //   user: decoded.uid,
-  // });
-
-  // console.log(paymentUrl);
-  // console.log(paymentToken);
-  // res.status(200).json({
-  //   paymentUrl,
-  //   paymentToken,
-  // });
+  console.log(paymentUrl);
+  console.log(paymentToken);
+  res.status(200).json({
+    paymentUrl,
+    paymentToken,
+  });
 }
