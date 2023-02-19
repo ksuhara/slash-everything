@@ -16,7 +16,7 @@ export default async function slashWebhook(
   const { db } = initializeFirebaseServer();
   const docRef = db.collection(`orders`).doc(orderCode);
   await docRef.update({
-    status: result ? "settled" : "failed",
+    status: result ? "processing" : "failed",
     transactionHash,
   });
 

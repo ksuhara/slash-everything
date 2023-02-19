@@ -1,3 +1,5 @@
+import initializeFirebaseClient from "@/configs/initFirebase";
+import useFirebaseUser from "@/hooks/useFirebaseUser";
 import {
   Avatar,
   Box,
@@ -9,14 +11,60 @@ import {
   IconButton,
   useBreakpointValue,
   Link,
+  Stack,
+  Divider,
+  useDisclosure,
 } from "@chakra-ui/react";
+import { useAddress, useMetamask, useSDK } from "@thirdweb-dev/react";
+import { signInWithCustomToken, signOut } from "firebase/auth";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { FiHelpCircle, FiMenu, FiSearch, FiSettings } from "react-icons/fi";
+import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 
 export const Header = () => {
   const isDesktop = useBreakpointValue({ base: false, lg: true });
   const router = useRouter();
+  const address = useAddress();
+  const sdk = useSDK();
+  const { auth, db } = initializeFirebaseClient();
+  const { user, isLoading: loadingAuth } = useFirebaseUser();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const handleToggle = () => (isOpen ? onClose() : onOpen());
+
+  const signIn = async () => {
+    if (!address) return;
+    const payload = await sdk?.auth.login("newid.vercel.app");
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ payload }),
+    });
+    const { token } = await res.json();
+    signInWithCustomToken(auth, token)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        const usersRef = doc(db, "users", user.uid!);
+        getDoc(usersRef).then((doc) => {
+          if (!doc.exists()) {
+            setDoc(usersRef, { createdAt: serverTimestamp() }, { merge: true });
+          }
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  const connectWithMetamask = useMetamask();
+  const handleLogin = async () => {
+    await connectWithMetamask();
+    await signIn();
+  };
+
   return (
     <>
       <Head>
@@ -25,43 +73,91 @@ export const Header = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Box as="nav" bg="bg-surface" boxShadow="sm" width="full">
-        <Box py={{ base: "3", lg: "4" }} px="2" width="full">
-          <Flex justify="space-between">
-            <HStack spacing="4" onClick={() => router.push("/")}>
-              <Text
-                fontSize="xl"
-                fontWeight="extrabold"
-                ml="2"
-                color="blue.400"
-                fontStyle="italic"
-              >
-                Slash Everything
-              </Text>
-            </HStack>
-            {isDesktop ? (
-              <HStack spacing="4">
-                {/* <ButtonGroup variant="ghost" spacing="1">
-                  <IconButton
-                    icon={<FiHelpCircle fontSize="1.25rem" />}
-                    aria-label="Help Center"
-                  />
-                </ButtonGroup> */}
-                <Avatar
-                  boxSize="10"
-                  name="Christoph Winston"
-                  src="https://tinyurl.com/yhkm2ek8"
-                />
-              </HStack>
+      <Box py={{ base: "3", lg: "4" }} px="2" width="full" maxHeight="16">
+        <Flex width="full" justifyContent="space-between" maxHeight="16">
+          <Box onClick={() => router.push("/")}>
+            <Text
+              fontSize="xl"
+              fontWeight="extrabold"
+              ml="2"
+              color="blue.400"
+              fontStyle="italic"
+            >
+              Slash Everything
+            </Text>
+          </Box>
+          <>
+            {address ? (
+              <>
+                {!user ? (
+                  <Button
+                    color="white"
+                    borderColor="blue.400"
+                    textColor="blue.400"
+                    variant="outline"
+                    borderRadius="3xl"
+                    onClick={() => handleLogin()}
+                  >
+                    Sign in
+                  </Button>
+                ) : (
+                  <Flex direction="column">
+                    <Button
+                      color="white"
+                      borderColor="blue.400"
+                      textColor="blue.400"
+                      variant="outline"
+                      borderRadius="3xl"
+                      minH="10"
+                      onClick={() => handleToggle()}
+                    >
+                      <Flex align="center">
+                        <Jazzicon
+                          diameter={30}
+                          seed={jsNumberForAddress(user?.uid)}
+                        />
+                        <Text ml="2">{address.substring(0, 10) + "..."}</Text>
+                      </Flex>
+                    </Button>
+                    <Stack
+                      direction={{ base: "column" }}
+                      display={{ base: isOpen ? "block" : "none" }}
+                      bgColor="gray.100"
+                      borderRadius="3xl"
+                      border="1px"
+                      borderColor="gray.400"
+                      p="2"
+                      boxShadow="3xl"
+                    >
+                      {/* <Link href={`/account/${address}`}>
+                          <Text my="1" ml="2">
+                            Profile
+                          </Text>
+                        </Link>
+                        <Divider /> */}
+                      <Box onClick={() => signOut(auth)}>
+                        <Text my="1" ml="2">
+                          Sign Out
+                        </Text>
+                      </Box>
+                    </Stack>
+                  </Flex>
+                )}
+              </>
             ) : (
-              <IconButton
-                variant="ghost"
-                icon={<FiMenu fontSize="1.25rem" />}
-                aria-label="Open Menu"
-              />
+              <Button
+                color="white"
+                borderColor="blue.400"
+                textColor="blue.400"
+                variant="outline"
+                borderRadius="3xl"
+                onClick={() => handleLogin()}
+              >
+                Connect Wallet
+              </Button>
             )}
-          </Flex>
-        </Box>
+          </>
+        </Flex>
       </Box>
     </>
   );
