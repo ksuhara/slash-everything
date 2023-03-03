@@ -1,33 +1,32 @@
 import initializeFirebaseClient from "@/configs/initFirebase";
+import { statusToColor } from "@/configs/status";
+import useFirebaseUser from "@/hooks/useFirebaseUser";
+import useFirebaseUserData from "@/hooks/useFirebaseUserData";
 import {
+  Badge,
   Box,
   Button,
+  Card,
+  CardBody,
+  CardHeader,
   chakra,
   Container,
   FormControl,
+  FormErrorMessage,
   Heading,
+  IconButton,
   Input,
+  Link,
   Stack,
   Text,
-  Image,
-  Card,
-  CardHeader,
-  CardBody,
-  Badge,
-  Link,
-  FormErrorMessage,
-  IconButton,
 } from "@chakra-ui/react";
 import { useAddress, useMetamask, useSDK } from "@thirdweb-dev/react";
+import { signInWithCustomToken } from "firebase/auth";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
-import { Header } from "../components/Header";
-import { signInWithCustomToken, signOut } from "firebase/auth";
-import { getDoc, doc, serverTimestamp, setDoc } from "firebase/firestore";
-import useFirebaseUser from "@/hooks/useFirebaseUser";
-import useFirebaseUserData from "@/hooks/useFirebaseUserData";
 import { useState } from "react";
-import { statusToColor } from "@/configs/status";
 import { FaAmazon } from "react-icons/fa";
+import { Header } from "../components/Header";
 
 export default function Home() {
   const router = useRouter();
@@ -89,7 +88,6 @@ export default function Home() {
       router.push(json.paymentUrl);
       setLoading(false);
     } else {
-      console.log(signedPayloadReq);
       setLoading(false);
       alert(
         "You have already started this payment. Please continue the payment or start from order again."

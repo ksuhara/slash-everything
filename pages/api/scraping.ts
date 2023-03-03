@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 import sha256 from "crypto-js/sha256";
+import type { NextApiRequest, NextApiResponse } from "next";
 import randomstring from "randomstring";
 import initializeFirebaseServer from "../../configs/initFirebaseAdmin";
 
@@ -9,7 +9,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log(req.headers.authorization);
   if (!(req.headers && req.headers.authorization)) {
     return res
       .status(400)
@@ -19,8 +18,6 @@ export default async function handler(
   const { db, auth } = initializeFirebaseServer();
 
   const decoded = await auth.verifyIdToken(req.headers.authorization);
-
-  console.log(amount);
 
   const amountType = "JPY";
   const orderCode = randomstring.generate({
@@ -74,10 +71,10 @@ export default async function handler(
     paymentToken,
     status: "initiated",
     user: decoded.uid,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   });
 
-  console.log(paymentUrl);
-  console.log(paymentToken);
   res.status(200).json({
     paymentUrl,
     paymentToken,

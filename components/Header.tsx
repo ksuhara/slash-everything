@@ -1,18 +1,12 @@
 import initializeFirebaseClient from "@/configs/initFirebase";
 import useFirebaseUser from "@/hooks/useFirebaseUser";
 import {
-  Avatar,
   Box,
   Button,
-  ButtonGroup,
   Flex,
-  HStack,
-  Text,
-  IconButton,
-  useBreakpointValue,
-  Link,
   Stack,
-  Divider,
+  Text,
+  useBreakpointValue,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useAddress, useMetamask, useSDK } from "@thirdweb-dev/react";
@@ -20,7 +14,6 @@ import { signInWithCustomToken, signOut } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { FiHelpCircle, FiMenu, FiSearch, FiSettings } from "react-icons/fi";
 import Jazzicon, { jsNumberForAddress } from "react-jazzicon";
 
 export const Header = () => {
@@ -35,7 +28,7 @@ export const Header = () => {
 
   const signIn = async () => {
     if (!address) return;
-    const payload = await sdk?.auth.login("newid.vercel.app");
+    const payload = await sdk?.auth.login("slash-everything.vercel.app");
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: {
