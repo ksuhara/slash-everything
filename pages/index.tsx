@@ -71,7 +71,8 @@ export default function Home() {
   const payment = async () => {
     if (!amazonUrl || !amount) return;
     setLoading(true);
-    const idToken = await user?.getIdToken();
+    console.log(user, "user");
+    const idToken = await auth?.currentUser?.getIdToken();
 
     const signedPayloadReq = await fetch(`/api/scraping`, {
       method: "POST",
